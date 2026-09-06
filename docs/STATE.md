@@ -61,7 +61,7 @@ When you run `siding plan`, `siding sync`, `siding up`, or `siding remove`:
 1. Start path = `--path` or cwd
 2. Walk up to `.siding/config.yml` → repo root
 3. Checkout key = `NormalizeLockPath(repo_root)`
-4. Stack = `--stack` → folder basename minus `folder_prefix` → basename
+4. Stack = `--stack`, else folder basename with `folder_prefix` trimmed when set, else the folder basename as-is
 5. Ports = `state.checkouts[key].modes[mode].ports` if present, else contract mode defaults
 6. Host / compose project = expanded patterns, unless state overrides them
 

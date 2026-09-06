@@ -22,7 +22,7 @@ Most repo commands also take:
 | Flag | What it does |
 |------|----------------|
 | `--path` | Start directory (default: cwd). Walks **up** until `.siding/config.yml` (or `.siding.yml`) |
-| `--stack` | Stack name. Default: folder basename minus recipe `folder_prefix`, else basename |
+| `--stack` | Stack name. Default: folder basename, with recipe `folder_prefix` trimmed when that is set |
 | `--mode` | Recipe mode (default `test`) |
 
 Identity: `--path` → repo root → checkout key in `state.json` → stack name from the folder. There is no named roster in the recipe. See [STATE.md](STATE.md).
@@ -69,21 +69,21 @@ Create a committed org recipe, **or** map an existing one onto this machine.
 - **No** `.siding/config.yml` → wizard (TTY) or flags: scan compose, own **every** published port, write `.siding/config.yml` + `.siding/.gitignore`, then `sync`.
 - **Recipe already present** → runs [`sync`](#siding-sync) (does not overwrite). `--force` re-runs the wizard.
 
-Never edits the OS hosts file. Does not start containers unless you run `up` yourself.
+Does not write the OS hosts file (`*.localhost` does not need it). You can still add hosts-file lines yourself. Does not start containers unless you run `up` yourself.
 
 | Flag | Default | What it does |
 |------|---------|----------------|
 | `--path` | cwd | Repo to initialize |
-| `--project` | folder prefix without the trailing hyphen, else folder name | Product id shared by every clone (`acme`, `hello`). Not the clone folder — that is the stack |
-| `--folder-prefix` | guessed from `org-clone` folders | Stripped from folder names (`acme-shop` → stack `shop`). `acme-web2` → `acme-` even when non-interactive. `none` / empty flag value disables |
+| `--project` | folder prefix without the trailing hyphen, else folder name | Product id shared by every clone (`acme`, `hello`). Not the clone folder; that is the stack |
+| `--folder-prefix` | guessed from `org-clone` folders | Optional trim of the folder basename. With `acme-`, folder `acme-shop` is stack `shop`. With no prefix, folder `acme-shop` is stack `acme-shop`. `acme-web2` still guesses `acme-` even when non-interactive. `none` / empty flag value disables |
 | `--http-prefix` / `--host-prefix` | inferred or none | Product prefix without `app.` (`example` → `app/www/api.example.{stack}.{mode}.localhost`). `none` = `{stack}.{project}.{mode}` |
 | `--entry KEY=LABEL` | `web=app` when a prefix is set, else `web`; `api=api` | Repeatable HTTP entry points. Clickable on `http://siding.localhost`. Extras: `--entry web=app,www` |
 | `--compose` | all root files | Repeatable. Wizard lists root compose files; type `1,3` or `all`. Each file is its own stack except *override* files, which attach to the base |
 | `--mode-name FILE=SUFFIX` | from filename | Repeatable. Suffix for that compose stack (`test`, `prod`, …). TTY prompts per file when omitted |
 | `--port KEY=NUMBER` | (scan) | Override one default port. Repeatable. **Does not drop** other scanned publishes |
-| `--prefer-proxy` | `true` | Host URLs via `siding proxy` (Caddy on host `:80`). Init stops if something else holds `:80` (not our own Caddy) |
+| `--prefer-proxy` | `true` | Host URLs via `siding proxy` (Caddy on host `:80`). Without Caddy you must remember port plus name for each slot; use the proxy. Init stops if something else holds `:80` (not our own Caddy) |
 | `--rewrite-compose` | `false` | Copy root compose files to `.siding/compose/` and adapt **the copies** (ports → `${…_PORT}`, public URL env, Compose DNS, shared network). Originals at the repo root are not modified |
-| `--print-hosts` | `false` | Remind that `*.localhost` must not be added to the hosts file |
+| `--print-hosts` | `false` | Print `*.localhost` lines. Siding does not write the hosts file; you can if you choose |
 | `--force` | `false` | Overwrite an existing recipe (re-run wizard) |
 | `--dry-run` | `false` | Show recipe / compose-copy plan; write nothing |
 
@@ -118,7 +118,7 @@ Does **not** start containers and does **not** copy compose. `init` on a repo th
 | `--path` | cwd | Checkout to map |
 | `--stack` | from folder | Override stack name |
 | `--mode` | all modes | Omit to allocate every mode; pass a name to sync one |
-| `--print-hosts` | `false` | Remind that `*.localhost` must not be added to the hosts file |
+| `--print-hosts` | `false` | Print `*.localhost` lines. Siding does not write the hosts file; you can if you choose |
 | `--dry-run` | `false` | Show mapping; do not write state or env |
 | `--json` | `false` | JSON instead of text |
 
@@ -340,7 +340,7 @@ HTTP Host routes only:
 | `web` | `{host}` (e.g. `app.acme.shop.test.localhost`), plus extra `http_hosts.web` labels |
 | `api` | Sibling of a role-prefixed host (`api.acme.shop.test.localhost`), else `api.{host}`, plus `http_hosts.api` |
 
-Redis, Postgres, Firebase, … stay Docker host ports in `.siding/env`. They are not Caddy sites (TCP has no `Host` header).
+Redis, Postgres, Firebase, … stay Docker host ports in `.siding/env`. They are not Caddy sites (TCP has no `Host` header). We are looking into easier access for Redis and other database instances.
 
 Reserved (never allocated to a stack): **80**, **2019**.
 

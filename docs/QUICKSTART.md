@@ -27,13 +27,13 @@ siding doctor --path my-app
 
 ## 2. First checkout: write the org recipe
 
-Dry-run first. Scan will try to **own every published compose port** (web, api, redis, postgres, firebase, …). That is required — skipping them is how parallel stacks collide.
+Dry-run first. Scan will try to **own every published compose port** (web, api, redis, postgres, firebase, …). That is required. Skipping them is how parallel stacks collide.
 
 ```powershell
 siding init --path my-app --dry-run
 ```
 
-Then run it for real. Typical product clone (`acme-shop` → stack `shop`):
+Then run it for real. Typical product clone: folder `acme-shop` with `--folder-prefix acme-` becomes stack `shop` (without a prefix the stack is the full folder name):
 
 ```powershell
 siding init --path my-app --project acme --folder-prefix acme- --prefer-proxy
@@ -41,12 +41,12 @@ siding init --path my-app --project acme --folder-prefix acme- --prefer-proxy
 
 On a TTY the wizard asks:
 
-1. Which compose files at the **repo root** to process (numbered list — `all` or `1,3`). Nested compose files are ignored. Each file becomes its own stack except `*override*` files, which stay with the primary compose file.
+1. Which compose files at the **repo root** to process (numbered list: `all` or `1,3`). Nested compose files are ignored. Each file becomes its own stack except `*override*` files, which stay with the primary compose file.
 2. A **suffix** per stack (`test`, `prod`, …) used in hosts and `siding up --mode`. Guess from the filename.
-3. Shared Caddy proxy (host `:80`) vs raw published ports (prefer the proxy).
-4. **Public host prefix** — product name only (`example`), not `app.example`. Subdomains `app`, `www`, and `api` all work: `app.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Compose can guess `example` from `app.example.test`. Do not add `*.localhost` to the hosts file.
-5. **HTTP entry points** — subdomain for each web container (`web` → `app`, `api` → `api`). Those names are the clickable links on `http://siding.localhost`. Comma extras (`app,www`) add more links. Flag: `--entry web=app --entry api=api`.
-6. Whether to copy those compose files into `.siding/compose/` and adapt the copies (`${WEB_PORT:-…}`, public URL env, Compose DNS). **Originals stay at the repo root** so `docker compose` without siding still works. On a large YAML-anchor compose, answer **no** the first time — env overrides on the original often suffice.
+3. Shared Caddy proxy (host `:80`) vs raw published ports. Prefer the proxy. Without it you must remember which allocated port belongs to which name.
+4. **Public host prefix:** product name only (`example`), not `app.example`. Subdomains `app`, `www`, and `api` all work: `app.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Compose can guess `example` from `app.example.test`. `*.localhost` is used so siding does not rewrite the hosts file. You can still write the hosts file yourself if you choose.
+5. **HTTP entry points:** subdomain for each web container (`web` → `app`, `api` → `api`). Those names are the clickable links on `http://siding.localhost`. Comma extras (`app,www`) add more links. Flag: `--entry web=app --entry api=api`.
+6. Whether to copy those compose files into `.siding/compose/` and adapt the copies (`${WEB_PORT:-…}`, public URL env, Compose DNS). **Originals stay at the repo root** so `docker compose` without siding still works. On a large YAML-anchor compose, answer **no** the first time. Env overrides on the original often suffice.
 
 Flags skip the prompts: `--compose`, `--mode-name FILE=SUFFIX`, `--prefer-proxy`, `--http-prefix`, `--entry KEY=LABEL`, `--rewrite-compose`.
 
@@ -83,7 +83,7 @@ Push the branch. The next person clones, runs `siding init` (or `siding sync`), 
 
 ## 4. Shared proxy (once per machine)
 
-Host URLs via Caddy (`http://app.<host>` on port 80):
+Host URLs via Caddy (`http://app.<host>` on port 80). Use this. Without Caddy you must remember which allocated port belongs to which name.
 
 ```powershell
 siding proxy up
