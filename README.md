@@ -63,7 +63,6 @@ New Windows Terminal / cmd windows pick up PATH. Cursor and other IDE
 terminals keep the IDE’s environment until the IDE restarts.
 
 **macOS / Linux:** unpack `siding` onto your PATH (`~/.local/bin` is typical).
-macOS builds are unsigned.
 
 `checksums.txt` is on each Release. `siding version` prints the tag, commit,
 and build date.
