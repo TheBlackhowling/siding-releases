@@ -88,7 +88,7 @@ When you run `siding plan`, `siding sync`, `siding up`, or `siding remove`:
 
 Those two ports are reserved and never allocated to a stack. A leftover `proxy.listen` of `0` or `1355` is migrated to `80` on read. Explicit `--listen 8080` is kept.
 
-`http://siding.localhost` is a status board: every allocated checkout, whether the slot lock is held (`up`), clickable entry-point links (`app`, `api`, …), and git branch/SHA recorded at the last successful `siding up`. Stack Hosts are matched separately and never redirect to the board. An unknown Host gets 404. HTML lives in `{user-data}/siding-proxy/board/index.html`.
+`http://siding.localhost` is a status board: every allocated checkout, whether the slot lock is held (badge `up` means last `siding up` without a matching `down`, not a live Docker probe), clickable entry-point links (`app`, `api`, …), and git branch/SHA recorded at the last successful `siding up`. The HTML is rewritten when proxy files are written and auto-refreshes every 15 seconds from that file. Stack Hosts are matched separately and never redirect to the board. An unknown Host gets 404. HTML lives in `{user-data}/siding-proxy/board/index.html`.
 
 HTTP port keys only:
 

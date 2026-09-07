@@ -48,6 +48,8 @@ PowerShell does not search the current folder, so `siding` only works after the 
 | Windows | `%LOCALAPPDATA%\siding\bin\siding.exe` |
 | macOS / Linux | `~/.local/bin/siding` |
 
+Download the archive from [Releases](https://github.com/TheBlackhowling/siding-releases/releases/latest) first. Windows amd64/arm64 are zips; macOS and Linux are `.tar.gz` (macOS is Developer ID signed).
+
 The install process cannot change **this** PowerShell session’s PATH (a child process cannot). After `siding install`, prepend the bin dir in this session (or open a new Windows Terminal):
 
 ```powershell
@@ -56,9 +58,15 @@ $env:Path = "$env:LOCALAPPDATA\siding\bin;" + $env:Path
 siding version
 ```
 
-Download the archive from [Releases](https://github.com/TheBlackhowling/siding-releases/releases/latest) first.
+**macOS / Linux:** unpack `siding` and copy it onto PATH yourself (install still works if you run it from that copy):
 
-No extra flags.
+```bash
+tar -xzf siding_*_darwin_arm64.tar.gz   # or linux / amd64
+install -m 0755 siding ~/.local/bin/siding
+siding version
+```
+
+No extra flags. There is no `siding update` yet; install a newer Release the same way.
 
 ---
 

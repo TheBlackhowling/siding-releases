@@ -15,7 +15,8 @@ endpoints a person actually hits.
 
 Siding also serves a local UI at `http://siding.localhost`: the available
 HTTP endpoints for each slot, the git branch and SHA recorded at last
-`siding up`, and the compose project name.
+`siding up`, the compose project name, and whether this machine holds the
+slot lock.
 
 Park a stack on a siding: the main line stays clear; each checkout waits on
 its own spur.
@@ -41,7 +42,7 @@ Siding is a local slot allocator plus an optional HTTP front door. One
 committed recipe describes the product. This machine assigns each folder a
 slot. Browsers use `*.localhost` names instead of raw ports. The board at
 `http://siding.localhost` is the map: endpoints, last-up git, compose
-project, and whether the slot is up.
+project, and whether this machine holds the slot lock.
 
 It is not a cloud orchestrator, not a replacement for Docker Compose, and
 not a TCP router for Postgres.
@@ -51,7 +52,16 @@ not a TCP router for Postgres.
 Download the archive for your OS from
 [Releases](https://github.com/TheBlackhowling/siding-releases/releases/latest).
 
-**Windows** (amd64 zip):
+| OS | Arch | Archive |
+|----|------|---------|
+| Windows | amd64, arm64 | `.zip` (`siding.exe`) |
+| macOS | amd64, arm64 | `.tar.gz` (Developer ID signed) |
+| Linux | amd64, arm64 | `.tar.gz` |
+
+Each Release also has `checksums.txt`. `siding version` prints the tag,
+commit, and build date.
+
+**Windows:**
 
 ```powershell
 .\siding.exe install
@@ -62,10 +72,17 @@ siding version
 New Windows Terminal / cmd windows pick up PATH. Cursor and other IDE
 terminals keep the IDE’s environment until the IDE restarts.
 
-**macOS / Linux:** unpack `siding` onto your PATH (`~/.local/bin` is typical).
+**macOS / Linux:** unpack `siding` to a directory on PATH (`~/.local/bin`
+is typical), then `chmod +x` if needed:
 
-`checksums.txt` is on each Release. `siding version` prints the tag, commit,
-and build date.
+```bash
+tar -xzf siding_*_darwin_*.tar.gz   # or linux
+install -m 0755 siding ~/.local/bin/siding
+siding version
+```
+
+macOS binaries are signed with Apple Developer ID. Apple notarization is
+submitted at release time; Gatekeeper can check with Apple on first run.
 
 ## How it is split
 

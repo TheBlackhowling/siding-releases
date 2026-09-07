@@ -4,7 +4,9 @@
 
 Get one checkout running and check in the org recipe so everyone else can `sync`. Docker Desktop must be running.
 
-Download a binary from [Releases](https://github.com/TheBlackhowling/siding-releases/releases/latest). **PowerShell** will not run `siding` from the current folder (no implicit `.\`). Install once so `siding` works like any other command:
+Download a binary from [Releases](https://github.com/TheBlackhowling/siding-releases/releases/latest) (Windows `.zip`, macOS/Linux `.tar.gz`). macOS builds are Developer ID signed.
+
+**Windows:** PowerShell will not run `siding` from the current folder (no implicit `.\`). Install once so `siding` works like any other command:
 
 ```powershell
 .\siding.exe install
@@ -12,7 +14,11 @@ $env:Path = "$env:LOCALAPPDATA\siding\bin;" + $env:Path
 siding version
 ```
 
-That copies the exe to `%LOCALAPPDATA%\siding\bin` and puts it on your user PATH. New Windows Terminal windows pick it up; Cursor/IDE terminals keep the old PATH until the IDE restarts. See [Commands → install](COMMANDS.md#siding-install).
+That copies the exe to `%LOCALAPPDATA%\siding\bin` and puts it on your user PATH. New Windows Terminal windows pick it up; Cursor/IDE terminals keep the old PATH until the IDE restarts.
+
+**macOS / Linux:** unpack `siding` onto PATH (`~/.local/bin` is typical), then `siding version`.
+
+See [Commands → install](COMMANDS.md#siding-install).
 
 ## 1. Point at the app repo
 
