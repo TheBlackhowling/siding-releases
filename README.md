@@ -124,9 +124,9 @@ easier access for Redis and other database instances.
   exposed to the user needs a rewritten host port. Browsers talk
   `*.localhost` via Caddy on `:80`.
 - **`*.localhost` on purpose.** We use `*.localhost` so siding does not
-  rewrite the OS hosts file. Browsers resolve those names without it. You
-  can still write the hosts file yourself if a tool needs it.
-  `--print-hosts` prints the lines.
+  rewrite the OS hosts file. Browsers resolve those names without it.
+  Do not add those names to the hosts file. `--print-hosts` only reminds
+  you of that.
 
 ## License
 

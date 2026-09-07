@@ -74,7 +74,7 @@ modes:
 | `folder_prefix` | no | Optional. When set, trimmed from the folder basename before it becomes the stack (`acme-shop` + `acme-` → `shop`). When omitted, the full folder name is the stack (`acme-shop` → `acme-shop`) |
 | `slot_env_file` | no | Default `.siding/env` for mode `test`. Other modes use `.siding/env.<mode>` |
 
-Tokens in patterns: `{stack}`, `{project}`, `{mode}`, `{prefix}`. Adjacent duplicate segments are collapsed (`hello.hello.test` → `hello.test`). `.localhost` is appended to hosts if missing. `*.localhost` is used so siding does not rewrite the OS hosts file. You can still write the hosts file yourself if you choose.
+Tokens in patterns: `{stack}`, `{project}`, `{mode}`, `{prefix}`. Adjacent duplicate segments are collapsed (`hello.hello.test` → `hello.test`). `.localhost` is appended to hosts if missing. `*.localhost` is used so siding does not rewrite the OS hosts file. Do not add those names to the hosts file; browsers already resolve them.
 
 A mode may override `host` / `compose_project` with its own pattern.
 
@@ -114,7 +114,7 @@ It does not start containers and does not copy or adapt compose.
    `siding up` runs `--project-directory` at the repo root so build contexts and volumes in the copy still resolve like the original.
 
    App code that reads `NEXT_PUBLIC_*` from the environment may still need a **one-line wrap on the original** (`${NEXT_PUBLIC_ROOT_DOMAIN:-app.acme.test:3000}`) so non-siding defaults keep working. That is not a full rewrite.
-5. **Public host prefix**: product name only (`example`). Do not type `app.`. With prefix `example`: `app.example.{stack}.test.localhost`, `www.example.{stack}.test.localhost`, `api.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Siding does not write the hosts file; you can if a tool needs it.
+5. **Public host prefix**: product name only (`example`). Do not type `app.`. With prefix `example`: `app.example.{stack}.test.localhost`, `www.example.{stack}.test.localhost`, `api.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Siding does not write the hosts file. Do not add `*.localhost` names there.
 6. **HTTP entry points**: first label for each web container (`web` → `app`, `api` → `api`). Written as `entry_points` and shown as clickable links on `http://siding.localhost`. Flag: `--entry web=app --entry api=api`.
 
 Recipe env templates are expanded on every `plan`/`up`:

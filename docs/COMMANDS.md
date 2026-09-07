@@ -77,7 +77,9 @@ Create a committed org recipe, **or** map an existing one onto this machine.
 - **No** `.siding/config.yml` → wizard (TTY) or flags: scan compose, own **every** published port, write `.siding/config.yml` + `.siding/.gitignore`, then `sync`.
 - **Recipe already present** → runs [`sync`](#siding-sync) (does not overwrite). `--force` re-runs the wizard.
 
-Does not write the OS hosts file (`*.localhost` does not need it). You can still add hosts-file lines yourself. Does not start containers unless you run `up` yourself.
+Does not write the OS hosts file. Do not add `*.localhost` names there;
+browsers already resolve them. Does not start containers unless you run `up`
+yourself.
 
 | Flag | Default | What it does |
 |------|---------|----------------|
@@ -91,7 +93,7 @@ Does not write the OS hosts file (`*.localhost` does not need it). You can still
 | `--port KEY=NUMBER` | (scan) | Override one default port. Repeatable. **Does not drop** other scanned publishes |
 | `--prefer-proxy` | `true` | Host URLs via `siding proxy` (Caddy on host `:80`). Without Caddy you must remember port plus name for each slot; use the proxy. Init stops if something else holds `:80` (not our own Caddy) |
 | `--rewrite-compose` | `false` | Copy root compose files to `.siding/compose/` and adapt **the copies** (ports → `${…_PORT}`, public URL env, Compose DNS, shared network). Originals at the repo root are not modified |
-| `--print-hosts` | `false` | Print `*.localhost` lines. Siding does not write the hosts file; you can if you choose |
+| `--print-hosts` | `false` | Remind that `*.localhost` must not be added to the hosts file. Siding does not write that file |
 | `--force` | `false` | Overwrite an existing recipe (re-run wizard) |
 | `--dry-run` | `false` | Show recipe / compose-copy plan; write nothing |
 
@@ -126,7 +128,7 @@ Does **not** start containers and does **not** copy compose. `init` on a repo th
 | `--path` | cwd | Checkout to map |
 | `--stack` | from folder | Override stack name |
 | `--mode` | all modes | Omit to allocate every mode; pass a name to sync one |
-| `--print-hosts` | `false` | Print `*.localhost` lines. Siding does not write the hosts file; you can if you choose |
+| `--print-hosts` | `false` | Remind that `*.localhost` must not be added to the hosts file. Siding does not write that file |
 | `--dry-run` | `false` | Show mapping; do not write state or env |
 | `--json` | `false` | JSON instead of text |
 
