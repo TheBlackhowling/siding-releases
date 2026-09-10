@@ -75,7 +75,7 @@ modes:
 | `host` | no | Pattern, default `{stack}.{project}.{mode}`, or `{prefix}.{stack}.{mode}` when `host_prefix` is set |
 | `compose_project` | no | Pattern, default `{project}-{stack}-{mode}` |
 | `folder_prefix` | no | Stripped from the folder basename (`acme-shop` → `shop`) |
-| `primary_branch` | no | Primary git branch for the product (`main`). Init records the current branch or `main`. Default start point for `siding worktree add NAME BRANCH` when `from` is omitted |
+| `primary_branch` | no | Primary git branch for the product. Init defaults to `origin/HEAD`, then `main`. Override with `--primary-branch` or the TTY prompt. Default start point for `siding worktree add NAME BRANCH` when `from` is omitted |
 | `slot_env_file` | no | Default `.siding/env` for mode `test`. Other modes use `.siding/env.<mode>` |
 
 Tokens in patterns: `{stack}`, `{project}`, `{mode}`, `{prefix}`. Adjacent duplicate segments are collapsed (`hello.hello.test` → `hello.test`). `.localhost` is appended to hosts if missing. `*.localhost` names are not added to the OS hosts file.

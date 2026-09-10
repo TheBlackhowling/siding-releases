@@ -121,7 +121,7 @@ Never edits the OS hosts file. Does not start containers unless you run `up` you
 | `--compose` | all root files | Repeatable. Wizard lists root compose files; type `1,3` or `all`. Each file is its own stack except *override* files, which attach to the base |
 | `--mode-name FILE=SUFFIX` | from filename | Repeatable. Suffix for that compose stack (`test`, `prod`, …). TTY prompts per file when omitted |
 | `--compose-env-file MODE=PATH` | none | Repo `--env-file` **for that mode only** (not shared). TTY asks once per mode and lists only that mode's compose stack; type comma-separated **numbers** in override order (`2,1`), `none`, or `all`. Modes with no candidates print “none for this mode”. Non-interactive writes none unless you pass this flag; a warning lists leftover files **for that mode** |
-| `--primary-branch` | current branch or `main` | Primary git branch written to the recipe; default start point for `worktree add` |
+| `--primary-branch` | `origin/HEAD` or `main` | Primary git branch written to the recipe; default start point for `worktree add` |
 | `--port KEY=NUMBER` | (scan) | Override one default port. Repeatable. **Does not drop** other scanned publishes |
 | `--prefer-proxy` | `true` | Host URLs via `siding proxy` (Caddy on host `:80`). Init stops if something else holds `:80` (not our own Caddy) |
 | `--rewrite-compose` | `false` | Copy root compose files to `.siding/compose/` and adapt **the copies** (ports → `${…_PORT}`, public URL env, Compose DNS, shared network). Originals at the repo root are not modified |
