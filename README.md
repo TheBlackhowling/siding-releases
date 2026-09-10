@@ -84,6 +84,12 @@ siding version
 macOS binaries are signed with Apple Developer ID. Apple notarization is
 submitted at release time; Gatekeeper can check with Apple on first run.
 
+Upgrade an installed binary:
+
+```powershell
+siding update
+```
+
 ## How it is split
 
 | Layer | Where | What |

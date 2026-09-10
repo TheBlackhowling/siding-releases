@@ -61,7 +61,7 @@ When you run `siding plan`, `siding sync`, `siding up`, or `siding remove`:
 1. Start path = `--path` or cwd
 2. Walk up to `.siding/config.yml` → repo root
 3. Checkout key = `NormalizeLockPath(repo_root)`
-4. Stack = `--stack`, else folder basename with `folder_prefix` trimmed when set, else the folder basename as-is
+4. Stack = `--stack` → folder basename minus `folder_prefix` → basename
 5. Ports = `state.checkouts[key].modes[mode].ports` if present, else contract mode defaults
 6. Host / compose project = expanded patterns, unless state overrides them
 
@@ -70,7 +70,7 @@ When you run `siding plan`, `siding sync`, `siding up`, or `siding remove`:
 `siding add` / `siding sync` (and the first `siding up` for a checkout) treat host binds as machine-global:
 
 1. If this checkout already has ports for the mode, keep them (idempotent) and **merge** any new keys from the org recipe.
-2. New claims **do not start** on conventional app/db ports. Compose defaults below 10000 (and a few well-known ones like `27017`) are lifted by **15000** first (`3000` → `18000`, `5432` → `20432`, `8000` → `23000`). Ports already in the siding band (hello’s `18080`) stay put.
+2. New claims **do not start** on conventional app/db ports. Compose defaults below 10000 (and a few well-known ones like `27017`) are lifted by **15000** first (`3000` → `18000`, `5432` → `20432`, `8000` → `23000`). Ports already in the siding band (hello's `18080`) stay put.
 3. Busy set = every checkout in `state.json` + reserved proxy ports (`80`, `2019`) + **currently published Docker host ports** (`docker inspect` on running containers). `network_mode: host` containers cannot list binds; doctor warns.
 4. Each **new key** is claimed on its own. If that number is taken, it shifts by 10 (max 100 tries). Duplicate recipe keys (`gcs-emulator` / `gcs_emulator`) collapse to one. Two services that share a compose default get distinct host ports.
 5. Independent compose files are **separate modes**. `siding sync` (no `--mode`) allocates all of them. Mode `test` writes `.siding/env`; `prod-db` writes `.siding/env.prod-db`. `docker compose -p` uses `{project}-{stack}-{mode}` so a compose `name:` field cannot collide.
@@ -88,7 +88,7 @@ When you run `siding plan`, `siding sync`, `siding up`, or `siding remove`:
 
 Those two ports are reserved and never allocated to a stack. A leftover `proxy.listen` of `0` or `1355` is migrated to `80` on read. Explicit `--listen 8080` is kept.
 
-`http://siding.localhost` is a status board: every allocated checkout, whether the slot lock is held (badge `up` means last `siding up` without a matching `down`, not a live Docker probe), clickable entry-point links (`app`, `api`, …), and git branch/SHA recorded at the last successful `siding up`. The HTML is rewritten when proxy files are written and auto-refreshes every 15 seconds from that file. Stack Hosts are matched separately and never redirect to the board. An unknown Host gets 404. HTML lives in `{user-data}/siding-proxy/board/index.html`.
+`http://siding.localhost` is a status board: every allocated checkout, whether the slot lock is held (`up`), clickable entry-point links (`app`, `api`, …), and git branch/SHA recorded at the last successful `siding up`. Stack Hosts are matched separately and never redirect to the board. An unknown Host gets 404. The UI is the published `ghcr.io/theblackhowling/siding-proxy:latest` image (Caddy + React SPA). Data is `{user-data}/siding-proxy/board/status.json`, rewritten whenever proxy files are written. `siding proxy up` pulls `:latest` so the board UI can move without a new CLI.
 
 HTTP port keys only:
 
