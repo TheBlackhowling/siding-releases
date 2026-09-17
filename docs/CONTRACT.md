@@ -65,7 +65,7 @@ modes:
 | `project` | yes | Product id shared by every clone (locks, `{project}` in compose). Init defaults this to the folder-prefix stem (`acme-` → `acme`), not the clone folder (`acme-genie2`) |
 | `modes.<name>` | yes | A kind of stack (`test`, `prod`, …) |
 | `modes.<name>.compose_files` | yes | Passed to `docker compose -f` (one instance per mode). After `--rewrite-compose`, these are `.siding/compose/<basename>` copies; originals at the repo root stay for non-siding users |
-| `modes.<name>.compose_env_files` | no | Extra `docker compose --env-file` paths **for that mode only** (interpolation in volumes/ports), in override order (later files win). Not shared with other modes. Repo files first; generated `.siding/env` / `.siding/env.<mode>` last. Init asks once per mode and lists only that mode's compose stack. Non-interactive writes none unless `--compose-env-file MODE=PATH` |
+| `modes.<name>.compose_env_files` | no | Extra `docker compose --env-file` paths **for that mode only** (interpolation in volumes/ports), in override order (later files win). Each entry is a repo-relative string (**required**) or `{path, optional: true}` (omitted when missing on disk). Not shared with other modes. Repo files first; generated `.siding/env` / `.siding/env.<mode>` last. Init asks per mode, then “skip if missing?” per file (default **yes**). Non-interactive `--compose-env-file` entries are required |
 | `modes.<name>.ports` | no | Default first-claim ports; `state.json` overrides after `add`/`up` |
 | `modes.<name>.port_env` | no | Maps port keys to env var names |
 | `modes.<name>.env` | no | Static env merged into that mode's env file |
@@ -103,11 +103,11 @@ There is no roster of slot names and no implicit `main`.
 
 It does not start containers and does not copy or adapt compose.
 
-`siding init` asks (or flags: `--prefer-proxy`, `--rewrite-compose`, `--http-prefix`, `--entry`, `--compose`, `--mode-name`, `--compose-env-file`):
+`siding init` asks (or flags: `--prefer-proxy`, `--rewrite-compose`, `--http-prefix`, `--entry`, `--compose`, `--mode-name`, `--compose-env-file`, `--primary-branch`):
 
-1. **Which root compose files**  -  lists `compose.yaml` / `docker-compose.yml` / `docker-compose.*.yml` at the repo root. Type `all` or comma-separated numbers (`1,3`). **Each file is its own stack** (own ports, compose project, generated `.siding/env` / `.siding/env.<mode>`) so they can run at the same time. `docker-compose.override.yml` attaches to the primary base. Non-interactive uses every file found unless you pass `--compose`.
-2. **Suffix per stack** (`test`, `prod`, …)  -  used in hosts (`{stack}.{project}.{suffix}`), `siding up --mode`, and `.siding/env` vs `.siding/env.prod`. Guess from the filename; type `prod` if you want that instead of `prod-db`. Flag: `--mode-name docker-compose.prod-db.yml=prod`.
-3. **Repo env files per mode**  -  asked separately for each mode. Only files that belong to **that** mode's compose stack are listed (`docker/.env.prod-db` under `prod`, not under `test`). These become `compose_env_files` on that mode (`docker compose --env-file` on `siding up --mode NAME`). They are not the generated slot file. Flag: `--compose-env-file prod=docker/.env.prod-db`.
+1. **Folder prefix / project**  -  when not passed on the command line, confirm prefix to strip from clone folder names and the shared product id.
+2. **Which root compose files**  -  lists `compose.yaml` / `docker-compose.yml` / `docker-compose.*.yml` at the repo root. Type `all` or comma-separated numbers (`1,3`). **Each file is its own stack** (own ports, compose project, generated `.siding/env` / `.siding/env.<mode>`) so they can run at the same time. `docker-compose.override.yml` attaches to the primary base. Non-interactive uses every file found unless you pass `--compose`.
+3. **Suffix per stack** (`test`, `prod`, …)  -  used in hosts (`{stack}.{project}.{suffix}`), `siding up --mode`, and `.siding/env` vs `.siding/env.prod`. Guess from the filename; type `prod` if you want that instead of `prod-db`. Flag: `--mode-name docker-compose.prod-db.yml=prod`.
 4. **Caddy proxy vs raw ports**  -  recommended: `siding proxy up`. Caddy listens on host **`:80`**. `NEXT_PUBLIC_*` is portless. On a TTY, answering no to “stop init” continues without the proxy; non-interactive init errors if something else holds `:80`.
 5. **Siding compose copies?**  -  write `.siding/compose/<same-basename>` from each chosen file. **The original is not modified** (`docker compose -f docker-compose.yml` still works for people who do not use siding). The copy gets:
    - `"3000:3000"` → `"${WEB_PORT:-3000}:3000"`
@@ -119,8 +119,10 @@ It does not start containers and does not copy or adapt compose.
    `siding up` runs `--project-directory` at the repo root so build contexts and volumes in the copy still resolve like the original.
 
    App code that reads `NEXT_PUBLIC_*` from the environment may still need a **one-line wrap on the original** (`${NEXT_PUBLIC_ROOT_DOMAIN:-app.acme.test:3000}`) so non-siding defaults keep working. That is not a full rewrite.
-6. **Public host prefix**  -  product name only (`example`). Do not type `app.`. With prefix `example`: `app.example.{stack}.test.localhost`, `www.example.{stack}.test.localhost`, `api.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Do **not** put `*.localhost` in the hosts file.
-7. **HTTP entry points**  -  first label for each web container (`web` → `app`, `api` → `api`). Written as `entry_points` and shown as clickable links on `http://siding.localhost`. Flag: `--entry web=app --entry api=api`.
+6. **Repo env files per mode**  -  asked separately for each mode **after** compose-copy choice. Only files that belong to **that** mode's compose stack are listed (`docker/.env.prod-db` under `prod`, not under `test`). These become `compose_env_files` on that mode (`docker compose --env-file` on `siding up --mode NAME`). They are not the generated slot file. Init asks “skip if missing?” per file (default **yes**). Flag: `--compose-env-file prod=docker/.env.prod-db` (non-interactive: required).
+7. **Primary git branch**  -  written to `primary_branch`; default start for `siding worktree add` when `from` is omitted. Flag: `--primary-branch`.
+8. **Public host prefix**  -  product name only (`example`). Do not type `app.`. With prefix `example`: `app.example.{stack}.test.localhost`, `www.example.{stack}.test.localhost`, `api.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Do **not** put `*.localhost` in the hosts file.
+9. **HTTP entry points**  -  first label for each web container (`web` → `app`, `api` → `api`). Written as `entry_points` and shown as clickable links on `http://siding.localhost`. Flag: `--entry web=app --entry api=api`.
 
 Recipe env templates are expanded on every `plan`/`up`:
 

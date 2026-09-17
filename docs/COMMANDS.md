@@ -234,7 +234,7 @@ siding add --path my-app
 
 Write `.siding/env` (or `.siding/env.<mode>`), allocate if needed, claim `{project}:{stack}:{mode}` lock, run `docker compose -p <project> -f …` **on the host**, reload the proxy if it is running.
 
-Recipe `modes.<name>.compose_env_files` are extra `--env-file` flags **for that mode only**, placed **before** that mode's slot file (`.siding/env` / `.siding/env.<mode>`) so `${VAR}` in that stack's volumes/ports can come from a repo file (`docker/.env.prod-db`) without copying secrets into the slot file.
+Recipe `modes.<name>.compose_env_files` are extra `--env-file` flags **for that mode only**, placed **before** that mode's slot file (`.siding/env` / `.siding/env.<mode>`) so `${VAR}` in that stack's volumes/ports can come from a repo file (`docker/.env.prod-db`) without copying secrets into the slot file. Entries marked `optional: true` in the recipe are skipped when the file is missing (init defaults new picks to optional). Required missing files fail before compose runs.
 
 Caddy defaults to host `:80`. `siding proxy up` and `init --prefer-proxy` refuse that port only when something **other than** `siding-proxy-caddy` already holds it. A custom `--listen` (not 80) must already be answering or `up` tells you to start the proxy.
 

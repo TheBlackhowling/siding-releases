@@ -57,17 +57,19 @@ Then run it for real. Typical product clone (`acme-shop` → stack `shop`):
 siding init --project myapp --folder-prefix myapp- --prefer-proxy
 ```
 
-On a TTY the wizard asks:
+On a TTY the wizard asks (in this order):
 
-1. Which compose files at the **repo root** to process (numbered list  -  `all` or `1,3`). Nested compose files are ignored. Each file becomes its own stack except `*override*` files, which stay with the primary compose file.
-2. A **suffix** per stack (`test`, `prod`, …) used in hosts and `siding up --mode`. Guess from the filename.
-3. **Repo env files per mode**  -  each mode is asked separately. Only files for **that** mode's compose stack are listed. These are `docker compose --env-file` on `siding up --mode NAME`, not `.siding/env`. Flag: `--compose-env-file prod=docker/.env.prod-db`.
+1. **Folder prefix** and **project id** when they are not obvious from the folder name (`acme-shop` → prefix `acme-`, project `acme`).
+2. Which compose files at the **repo root** to process (numbered list  -  `all` or `1,3`). Nested compose files are ignored. Each file becomes its own stack except `*override*` files, which stay with the primary compose file.
+3. A **suffix** per stack (`test`, `prod`, …) used in hosts and `siding up --mode`. Guess from the filename.
 4. Shared Caddy proxy (host `:80`) vs raw published ports (prefer the proxy).
-5. **Public host prefix**  -  product name only (`example`), not `app.example`. Subdomains `app`, `www`, and `api` all work: `app.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Compose can guess `example` from `app.example.test`. Do not add `*.localhost` to the hosts file.
-6. **HTTP entry points**  -  subdomain for each web container (`web` → `app`, `api` → `api`). Those names are the clickable links on `http://siding.localhost`. Comma extras (`app,www`) add more links. Flag: `--entry web=app --entry api=api`.
-7. Whether to copy those compose files into `.siding/compose/` and adapt the copies (`${WEB_PORT:-…}`, public URL env, Compose DNS). **Originals stay at the repo root** so `docker compose` without siding still works. On a large YAML-anchor compose, answer **no** the first time  -  env overrides on the original often suffice.
+5. Whether to copy those compose files into `.siding/compose/` and adapt the copies (`${WEB_PORT:-…}`, public URL env, Compose DNS). **Originals stay at the repo root** so `docker compose` without siding still works. On a large YAML-anchor compose, answer **no** the first time  -  env overrides on the original often suffice.
+6. **Repo env files per mode**  -  after compose copies are decided, each mode is asked separately. Only files for **that** mode's compose stack are listed. These are `docker compose --env-file` on `siding up --mode NAME`, not `.siding/env`. For each pick, **skip if missing?** defaults to **yes** (optional in the recipe). Flag: `--compose-env-file prod=docker/.env.prod-db` (non-interactive entries are required).
+7. **Primary git branch**  -  default start point for `siding worktree add` when `from` is omitted. Flag: `--primary-branch`.
+8. **Public host prefix**  -  product name only (`example`), not `app.example`. Subdomains `app`, `www`, and `api` all work: `app.example.{stack}.test.localhost`. `none` keeps `{stack}.{project}.{mode}`. Compose can guess `example` from `app.example.test`. Do not add `*.localhost` to the hosts file.
+9. **HTTP entry points**  -  subdomain for each web container (`web` → `app`, `api` → `api`). Those names are the clickable links on `http://siding.localhost`. Comma extras (`app,www`) add more links. Flag: `--entry web=app --entry api=api`.
 
-Flags skip the prompts: `--compose`, `--mode-name FILE=SUFFIX`, `--compose-env-file MODE=PATH`, `--prefer-proxy`, `--http-prefix`, `--entry KEY=LABEL`, `--rewrite-compose`.
+Flags skip the prompts: `--compose`, `--mode-name FILE=SUFFIX`, `--compose-env-file MODE=PATH`, `--prefer-proxy`, `--rewrite-compose`, `--http-prefix`, `--primary-branch`, `--entry KEY=LABEL`.
 
 If `.siding/config.yml` already exists, `init` **syncs** it onto this machine instead of overwriting (`--force` re-runs the wizard).
 
