@@ -271,6 +271,8 @@ If compose fails and this process just claimed the lock, the lock is released.
 
 `docker compose down` on the host, release the lock, reload the proxy if running.
 
+When `--profile` is omitted, siding passes `--profile "*"` to compose so services started under a profile (for example `siding up --profile e2e`) are torn down too. Otherwise compose only stops the default model and profiled containers can keep the project network busy (`network has active endpoints`). Pass `--profile NAME` for a partial teardown only.
+
 Keeps port allocations in `state.json` so the next `up` reuses the same binds. Named volumes stay unless you pass `--volumes`.
 
 | Flag | Default | What it does |
@@ -278,7 +280,7 @@ Keeps port allocations in `state.json` so the next `up` reuses the same binds. N
 | `--path` | cwd | Checkout |
 | `--stack` | from folder | Override stack name |
 | `--mode` | `test` | Recipe mode |
-| `--profile` | empty | Compose profile |
+| `--profile` | `*` (all profiles) | Compose profile; omit = stop every profile in the project |
 | `-v` / `--volumes` | `false` | `docker compose down --volumes` |
 | `--remove-orphans` | `false` | Drop containers for services no longer in compose |
 | `--timeout` | omit | Shutdown timeout in seconds |
